@@ -480,9 +480,8 @@ const currentToolBadge = $('currentToolBadge');
 
 // ---------- 硬编码 API 配置 ----------
 const API_CONFIG = {
-  endpoint: 'https://tokenhub.tencentmaas.com/v1/chat/completions',
-  key: 'sk-BGHJ7MhkGhQhKioiMKBiQ1LHKynn-iGA',
-  model: 'hy3-preview'
+    baseUrl: 'https://open.maic.chat/api/chat',
+    accessCode: 'sk-BGHJ7MhkGhQhKioiMKBiQ1LHKynn-iGA'
 };
 
 // ---------- 页面切换 ----------
@@ -606,18 +605,17 @@ function retryTool() {
 
 // ---------- OpenMAIC API 调用 ----------
 async function callOpenMAIC(toolName) {
-  const endpoint = API_CONFIG.endpoint;
-  const apiKey = API_CONFIG.key;
-  const model = API_CONFIG.model;
+  const baseUrl = API_CONFIG.baseUrl;
+  const accessCode = API_CONFIG.accessCode;
 
-  if (!endpoint) {
+  if (!baseUrl) {
     // 无 API 配置时，使用演示模式
     generateDemoContent(toolName);
     return;
   }
 
-  const systemPrompt = `你是毛老师的AI分身，一位资深的企业培训讲师，专注于决策工具课程教学。
-现在学员选择了"${toolName}"这个决策工具进行课前学习。
+  const prompt = `你现在是毛老师的AI分身。你是毛老师（一位资深的企业培训讲师，专注于决策工具课程教学）。
+学员选择了"${toolName}"这个决策工具进行课前学习。
 请生成一份标准化、专业的课程学习内容，要求：
 1. 用简体中文输出
 2. 风格专业但亲切，像一位经验丰富的老师在授课
@@ -626,28 +624,46 @@ async function callOpenMAIC(toolName) {
 5. 以"你好，我是毛老师的AI分身，今天我们来学习「${toolName}」这个决策工具。"作为开场
 6. 适当使用表格、列表等结构化方式呈现`;
 
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: `请为我讲解「${toolName}」决策工具。` }
-  ];
+  const requestBody = {
+    messages: [
+      { role: "user", content: prompt }
+    ],
+    storeState: {
+      stage: null,
+      scenes: [],
+      currentSceneId: null,
+      mode: "autonomous",
+      whiteboardOpen: false
+    },
+    config: {
+      agentIds: ["mao-teacher"],
+      sessionType: "qa",
+      agentConfigs: [
+        {
+          id: "mao-teacher",
+          name: "MAO老师",
+          role: "teacher",
+          persona: "你是一位经验丰富的AI教育专家，擅长用通俗易懂的方式讲解复杂概念。你幽默风趣，善于互动，能根据学员水平灵活调整讲解深度。",
+          avatar: "👨‍🏫",
+          color: "#4A90D9",
+          allowedActions: ["speak"],
+          priority: 1
+        }
+      ]
+    }
+  };
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000);
+  const timeoutId = setTimeout(() => controller.abort(), 120000);
 
   try {
-    const response = await fetch(endpoint, {
+    const response = await fetch(baseUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${accessCode}`
       },
-      body: JSON.stringify({
-        model: model,
-        messages: messages,
-        stream: false,
-        temperature: 0.7,
-        max_tokens: 4096
-      }),
+      body: JSON.stringify(requestBody),
       signal: controller.signal
     });
     clearTimeout(timeoutId);
@@ -659,10 +675,39 @@ async function callOpenMAIC(toolName) {
       return;
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '';
-    if (content) {
-      const htmlContent = renderMarkdown(content);
+    // 解析 SSE 流
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullContent = '';
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop() || '';
+
+      for (const part of parts) {
+        const lines = part.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.type === 'text_delta' && data.data && data.data.content) {
+                fullContent += data.data.content;
+              }
+            } catch (e) {
+              // 跳过非 JSON 行
+            }
+          }
+        }
+      }
+    }
+
+    if (fullContent) {
+      const htmlContent = renderMarkdown(fullContent);
       showContent(htmlContent);
     } else {
       showError('AI 分身生成失败，请重试');
