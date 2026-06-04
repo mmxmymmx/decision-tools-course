@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>决策工具课程 - 毛老师的AI分身</title>
+<style>
+:root {
+  --primary: #1a73e8;
+  --primary-dark: #1557b0;
+  --bg: #f8f9fa;
+  --card-bg: #ffffff;
+  --text: #202124;
+  --text-secondary: #5f6368;
+  --border: #e0e0e0;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-hover: 0 4px 12px rgba(0,0,0,0.12);
+  --radius: 12px;
+  --transition: 0.2s ease;
+  --cat-1: #4285f4;
+  --cat-2: #34a853;
+  --cat-3: #fbbc04;
+  --cat-4: #ea4335;
+  --cat-5: #9c27b0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========== Header ========== */
+.header {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+.brand { font-size: 16px; font-weight: 600; color: var(--text); }
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.student-name {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.student-name strong { color: var(--primary); }
+
+/* ========== Page Container ========== */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ========== Login Page ========== */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e8f0fe 0%, #f8f9fa 50%, #e8f5e9 100%);
+}
+.login-card {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 400px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+.login-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: var(--primary);
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 32px;
+  font-weight: 700;
+}
+.login-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
+.login-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.login-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+.login-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color var(--transition);
+  text-align: center;
+}
+.login-input:focus { border-color: var(--primary); }
+.login-input::placeholder { color: #bbb; }
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 16px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.login-btn:hover { background: var(--primary-dark); }
+.login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ========== Tools Page ========== */
+.tools-page { padding-bottom: 40px; }
+.tools-container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.category-section { margin-bottom: 32px; }
+.category-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-left: 14px;
+  border-left: 4px solid;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.category-title .cat-count {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+.cat-1 .category-title { border-left-color: var(--cat-1); color: var(--cat-1); }
+.cat-2 .category-title { border-left-color: var(--cat-2); color: var(--cat-2); }
+.cat-3 .category-title { border-left-color: var(--cat-3); color: #b8860b; }
+.cat-4 .category-title { border-left-color: var(--cat-4); color: var(--cat-4); }
+.cat-5 .category-title { border-left-color: var(--cat-5); color: var(--cat-5); }
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.tool-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: var(--shadow);
+}
+.tool-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--primary);
+}
+.tool-card:active { transform: translateY(0); }
+.tool-card-name {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.tool-card-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ========== Result Page ========== */
+.result-page { min-height: calc(100vh - 60px); }
+.result-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.back-btn:hover { background: #f1f3f4; color: var(--text); }
+.back-btn svg { width: 16px; height: 16px; }
+.tool-badge {
+  background: var(--primary);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ========== Content Area ========== */
+.content-area {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-height: 400px;
+}
+.loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  gap: 16px;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { color: var(--text-secondary); font-size: 15px; }
+
+.error-box {
+  text-align: center;
+  padding: 60px 40px;
+  color: #d93025;
+}
+.error-box .error-icon { font-size: 40px; margin-bottom: 12px; }
+.error-box .error-msg { font-size: 15px; }
+.retry-btn {
+  margin-top: 16px;
+  padding: 8px 24px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.retry-btn:hover { background: var(--primary-dark); }
+
+.result-content {
+  padding: 32px 36px;
+  line-height: 1.8;
+  font-size: 15px;
+}
+.result-content h1 { font-size: 22px; margin: 24px 0 12px; }
+.result-content h2 { font-size: 19px; margin: 20px 0 10px; }
+.result-content h3 { font-size: 17px; margin: 16px 0 8px; }
+.result-content p { margin-bottom: 12px; }
+.result-content ul, .result-content ol { margin: 8px 0 16px 20px; }
+.result-content li { margin-bottom: 6px; }
+.result-content strong { color: var(--primary); }
+.result-content table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+.result-content th, .result-content td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+.result-content th { background: #f8f9fa; font-weight: 600; }
+.result-content code { background: #f1f3f4; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+.result-content pre { background: #f8f9fa; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 12px 0; }
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+  .tools-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .tool-card { padding: 14px; }
+  .tool-card-name { font-size: 14px; }
+  .tool-card-desc { font-size: 12px; }
+  .result-content { padding: 20px; }
+  .login-card { padding: 32px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== Login Page ==================== -->
+<div class="page active" id="loginPage">
+  <div class="login-page">
+    <div class="login-card">
+      <div class="login-logo" id="loginLogo">决</div>
+      <div class="login-title">决策工具课前学习</div>
+      <div class="login-subtitle">毛老师的AI分身 · 24个专业决策工具</div>
+      <input type="text" class="login-input" id="studentNameInput" placeholder="请输入学员姓名" maxlength="20" autocomplete="off">
+      <button class="login-btn" id="loginBtn" disabled>确认进入</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== Tools Page ==================== -->
+<div class="page" id="toolsPage">
+  <div class="header">
+    <div class="header-left">
+      <div class="logo" id="toolsLogo">决</div>
+      <span class="brand">决策工具课前学习</span>
+    </div>
+    <div class="header-right">
+      <span class="student-name">学员：<strong id="displayName">--</strong></span>
+    </div>
+  </div>
+  <div class="tools-page">
+    <div class="tools-container" id="toolsContainer"></div>
+  </div>
+</div>
+
+<!-- ==================== Result Page ==================== -->
+<div class="page" id="resultPage">
+  <div class="header">
+    <div class="header-left">
+      <div class="logo" id="resultLogo">决</div>
+      <span class="brand">决策工具课前学习</span>
+    </div>
+    <div class="header-right">
+      <span class="student-name">学员：<strong id="resultDisplayName">--</strong></span>
+    </div>
+  </div>
+  <div class="result-page">
+    <div class="result-container">
+      <div class="result-header">
+        <button class="back-btn" id="backBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          返回工具列表
+        </button>
+        <span class="tool-badge" id="currentToolBadge">--</span>
+      </div>
+      <div class="content-area" id="contentArea">
+        <div class="loading-box">
+          <div class="spinner"></div>
+          <div class="loading-text">毛老师的AI分身思考中...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+/* ================================================================
+   决策工具课程网站 - 核心逻辑
+   ================================================================ */
+
+// ---------- 工具数据 ----------
+const CATEGORIES = [
+  {
+    id: 'cat-1',
+    name: '分析诊断类',
+    cssClass: 'cat-1',
+    tools: [
+      { name: 'MECE', desc: '相互独立、完全穷尽，确保问题拆解不重叠、不遗漏。' },
+      { name: '5Why', desc: '连续追问5个"为什么"，直达问题根本原因。' },
+      { name: '鱼骨图', desc: '按人/机/料/法/环/测分类，系统梳理因果关系。' },
+      { name: '帕累托分析', desc: '抓关键少数，用80/20法则定位核心影响因素。' },
+      { name: '逻辑树', desc: '层层拆解问题，结构化呈现原因与方案。' },
+      { name: '根本原因分析（RCA）', desc: '追溯问题源头，避免治标不治本。' },
+      { name: '因果回路图', desc: '展示因素间因果循环与反馈，看清系统动态。' },
+      { name: '5W2H', desc: '用Why/What/Who/When/Where/How/How much完整界定问题。' }
+    ]
+  },
+  {
+    id: 'cat-2',
+    name: '思维发散类',
+    cssClass: 'cat-2',
+    tools: [
+      { name: '六顶思考帽', desc: '平行思维工具，分别从事实、风险、利益、创新、直觉、流程视角思考。' },
+      { name: 'SCAMPER', desc: '替代/合并/调整/修改/其他用途/消除/重组，激发方案创新。' },
+      { name: '头脑风暴', desc: '自由发散、暂缓评判，快速产出大量想法。' },
+      { name: '亲和图', desc: '将零散想法归类汇总，形成清晰框架。' },
+      { name: '名义群体技术（NGT）', desc: '先独立书写、再轮流出ideas、最后匿名投票，避免一言堂。' }
+    ]
+  },
+  {
+    id: 'cat-3',
+    name: '评估决策类',
+    cssClass: 'cat-3',
+    tools: [
+      { name: '决策树', desc: '树形分支呈现条件、概率与结果，直观选择最优路径。' },
+      { name: '决策矩阵', desc: '多维度打分对比，清晰排序可选方案。' },
+      { name: '加权评分法', desc: '设置权重与评分标准，客观量化决策。' },
+      { name: '成本效益分析', desc: '对比投入与收益，判断方案是否值得做。' },
+      { name: '多标准决策分析', desc: '综合多目标与约束，处理复杂权衡决策。' },
+      { name: 'SWOT', desc: '梳理优势、劣势、机会、威胁，形成策略判断。' }
+    ]
+  },
+  {
+    id: 'cat-4',
+    name: '目标与流程类',
+    cssClass: 'cat-4',
+    tools: [
+      { name: 'SMART', desc: '目标具体、可衡量、可达成、相关、有时限。' },
+      { name: 'PDCA', desc: '计划-执行-检查-改进，闭环持续优化。' },
+      { name: 'IBM三环模型', desc: '围绕"想做、可做、能做"交集确定战略选择。' },
+      { name: '普氏方格', desc: '重要-紧急四象限，优先排序任务与决策。' }
+    ]
+  },
+  {
+    id: 'cat-5',
+    name: '角色与分工类',
+    cssClass: 'cat-5',
+    tools: [
+      { name: 'RAPID', desc: '明确决策角色：建议、同意、执行、输入、决策。' },
+      { name: 'RACI', desc: '分工清晰：负责、批准、支持、知情。' },
+      { name: '干系人分析', desc: '识别关键决策相关方，分析利益与影响。' },
+      { name: '德尔菲法（Delphi Method）', desc: '匿名多轮征询专家意见，得出客观决策结论。' }
+    ]
+  }
+];
+
+// ---------- 全局状态 ----------
+const STATE = {
+  studentName: '',
+  currentTool: null,
+  toolStartTime: null,
+  learningRecords: []
+};
+
+// ---------- DOM 引用 ----------
+const $ = id => document.getElementById(id);
+const loginPage = $('loginPage');
+const toolsPage = $('toolsPage');
+const resultPage = $('resultPage');
+const studentNameInput = $('studentNameInput');
+const loginBtn = $('loginBtn');
+const toolsContainer = $('toolsContainer');
+const contentArea = $('contentArea');
+const currentToolBadge = $('currentToolBadge');
+
+// ---------- 硬编码 API 配置 ----------
+const API_CONFIG = {
+  endpoint: 'https://api.hunyuan.cloud.tencent.com/v1/chat/completions',
+  key: 'sk-BGHJ7MhkGhQhKioiMKBiQ1LHKynn-iGA',
+  model: 'hunyuan-pro'
+};
+
+// ---------- 页面切换 ----------
+function showPage(page) {
+  [loginPage, toolsPage, resultPage].forEach(p => p.classList.remove('active'));
+  page.classList.add('active');
+}
+
+// ---------- 本地存储 ----------
+function loadData() {
+  try {
+    const d = JSON.parse(localStorage.getItem('dt_student') || '{}');
+    STATE.studentName = d.name || '';
+    STATE.learningRecords = d.records || [];
+  } catch(e) {}
+}
+function saveStudentData() {
+  localStorage.setItem('dt_student', JSON.stringify({
+    name: STATE.studentName,
+    records: STATE.learningRecords
+  }));
+}
+function recordLearning(toolName, duration) {
+  STATE.learningRecords.push({
+    tool: toolName,
+    duration: Math.round(duration),
+    timestamp: new Date().toISOString(),
+    score: null
+  });
+  saveStudentData();
+}
+
+// ---------- 登录逻辑 ----------
+studentNameInput.addEventListener('input', () => {
+  loginBtn.disabled = !studentNameInput.value.trim();
+});
+studentNameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && studentNameInput.value.trim()) doLogin();
+});
+loginBtn.addEventListener('click', doLogin);
+
+function doLogin() {
+  const name = studentNameInput.value.trim();
+  if (!name) return;
+  STATE.studentName = name;
+  saveStudentData();
+  $('displayName').textContent = name;
+  $('resultDisplayName').textContent = name;
+  showPage(toolsPage);
+  renderTools();
+}
+
+// ---------- 渲染工具列表 ----------
+function renderTools() {
+  let html = '';
+  CATEGORIES.forEach(cat => {
+    html += `<div class="category-section ${cat.cssClass}">`;
+    html += `<div class="category-title">${cat.name}<span class="cat-count">（${cat.tools.length}个工具）</span></div>`;
+    html += `<div class="tools-grid">`;
+    cat.tools.forEach(t => {
+      html += `<div class="tool-card" data-tool="${t.name}" title="${t.desc}">
+        <div class="tool-card-name">${t.name}</div>
+        <div class="tool-card-desc">${t.desc}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  toolsContainer.innerHTML = html;
+  // 绑定点击
+  toolsContainer.querySelectorAll('.tool-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const toolName = card.dataset.tool;
+      openTool(toolName);
+    });
+  });
+}
+
+// ---------- 打开工具 ----------
+function openTool(toolName) {
+  // 如果之前在学其他工具，记录时长
+  if (STATE.currentTool && STATE.toolStartTime) {
+    const duration = (Date.now() - STATE.toolStartTime) / 1000;
+    if (duration > 2) recordLearning(STATE.currentTool, duration);
+  }
+  STATE.currentTool = toolName;
+  STATE.toolStartTime = Date.now();
+  currentToolBadge.textContent = toolName;
+  $('resultDisplayName').textContent = STATE.studentName;
+  showPage(resultPage);
+  showLoading();
+  callOpenMAIC(toolName);
+}
+
+// ---------- Loading / Error / Content ----------
+function showLoading() {
+  contentArea.innerHTML = `
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <div class="loading-text">毛老师的AI分身思考中...</div>
+    </div>`;
+}
+
+function showError(msg) {
+  contentArea.innerHTML = `
+    <div class="error-box">
+      <div class="error-icon">!</div>
+      <div class="error-msg">${msg || 'AI 分身生成失败，请重试'}</div>
+      <button class="retry-btn" onclick="retryTool()">重新生成</button>
+    </div>`;
+}
+
+function showContent(html) {
+  contentArea.innerHTML = `<div class="result-content">${html}</div>`;
+}
+
+function retryTool() {
+  if (!STATE.currentTool) return;
+  showLoading();
+  callOpenMAIC(STATE.currentTool);
+}
+
+// ---------- OpenMAIC API 调用 ----------
+async function callOpenMAIC(toolName) {
+  const endpoint = API_CONFIG.endpoint;
+  const apiKey = API_CONFIG.key;
+  const model = API_CONFIG.model;
+
+  if (!endpoint) {
+    // 无 API 配置时，使用演示模式
+    generateDemoContent(toolName);
+    return;
+  }
+
+  const systemPrompt = `你是毛老师的AI分身，一位资深的企业培训讲师，专注于决策工具课程教学。
+现在学员选择了"${toolName}"这个决策工具进行课前学习。
+请生成一份标准化、专业的课程学习内容，要求：
+1. 用简体中文输出
+2. 风格专业但亲切，像一位经验丰富的老师在授课
+3. 内容结构清晰，包含：工具概述、核心概念、适用场景、使用步骤、经典案例、注意事项
+4. 用Markdown格式组织内容
+5. 以"你好，我是毛老师的AI分身，今天我们来学习「${toolName}」这个决策工具。"作为开场
+6. 适当使用表格、列表等结构化方式呈现`;
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: `请为我讲解「${toolName}」决策工具。` }
+  ];
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: messages,
+        stream: false,
+        temperature: 0.7,
+        max_tokens: 4096
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      console.error('API Error:', response.status, errText);
+      showError('AI 分身生成失败，请重试');
+      return;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    if (content) {
+      const htmlContent = renderMarkdown(content);
+      showContent(htmlContent);
+    } else {
+      showError('AI 分身生成失败，请重试');
+    }
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      showError('请求超时，AI 分身生成失败，请重试');
+    } else {
+      console.error('Fetch Error:', err);
+      showError('AI 分身生成失败，请重试');
+    }
+  }
+}
+
+// ---------- 简易 Markdown 渲染 ----------
+function renderMarkdown(md) {
+  let html = md;
+  // 代码块
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+  // 行内代码
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // 标题
+  html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  // 粗体
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // 斜体
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // 无序列表
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+  // 有序列表
+  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+  // 段落
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = '<p>' + html + '</p>';
+  // 清理
+  html = html.replace(/<p><\/p>/g, '');
+  html = html.replace(/<p>(\s*<[huo])/g, '$1');
+  html = html.replace(/(<\/[huo][^>]*>)\s*<\/p>/g, '$1');
+  html = html.replace(/<p><p>/g, '<p>');
+  html = html.replace(/<\/p><\/p>/g, '</p>');
+  // 表格
+  html = html.replace(/<p>\|(.+)\|<\/p>\n<p>\|[-| ]+\|<\/p>\n((?:<p>\|.+\|<\/p>\n?)+)/g, (m, header, body) => {
+    const hCells = header.split('|').filter(c => c.trim());
+    let table = '<table><thead><tr>';
+    hCells.forEach(c => { table += `<th>${c.trim()}</th>`; });
+    table += '</tr></thead><tbody>';
+    const rows = body.match(/<p>\|(.+)\|<\/p>/g) || [];
+    rows.forEach(r => {
+      const cells = r.replace(/<\/?p>/g, '').split('|').filter(c => c.trim());
+      table += '<tr>';
+      cells.forEach(c => { table += `<td>${c.trim()}</td>`; });
+      table += '</tr>';
+    });
+    table += '</tbody></table>';
+    return table;
+  });
+  // 水平线
+  html = html.replace(/<p>-{3,}<\/p>/g, '<hr>');
+  return html;
+}
+
+// ---------- 演示模式（无 API 时） ----------
+function generateDemoContent(toolName) {
+  const content = `
+<h1>${toolName}</h1>
+
+<p>你好，我是毛老师的AI分身，今天我们来学习「<strong>${toolName}</strong>」这个决策工具。</p>
+
+<h2>一、工具概述</h2>
+<p><strong>${toolName}</strong> 是一个经典的管理决策工具，广泛应用于企业战略分析、问题诊断和方案评估等场景。它帮助管理者从多维度系统化地审视问题，避免凭直觉做决策的局限性。</p>
+
+<h2>二、核心概念</h2>
+<ul>
+  <li><strong>结构化思维</strong>：将复杂问题拆解为可管理的组成部分</li>
+  <li><strong>系统化分析</strong>：从多个角度审视问题的全貌</li>
+  <li><strong>客观量化</strong>：用数据和逻辑代替主观臆断</li>
+  <li><strong>团队协作</strong>：促进团队对问题的共识和理解</li>
+</ul>
+
+<h2>三、适用场景</h2>
+<table>
+  <thead><tr><th>场景类型</th><th>具体应用</th></tr></thead>
+  <tbody>
+    <tr><td>战略规划</td><td>制定年度战略、评估新业务方向</td></tr>
+    <tr><td>问题诊断</td><td>分析业绩下滑原因、排查运营瓶颈</td></tr>
+    <tr><td>方案评估</td><td>对比多个解决方案、选择最优路径</td></tr>
+    <tr><td>团队决策</td><td>跨部门协作决策、达成多方共识</td></tr>
+  </tbody>
+</table>
+
+<h2>四、使用步骤</h2>
+<ol>
+  <li><strong>明确问题</strong>：清晰定义需要解决的核心问题</li>
+  <li><strong>收集信息</strong>：获取与问题相关的关键数据和事实</li>
+  <li><strong>应用工具</strong>：按照工具框架进行系统分析</li>
+  <li><strong>得出结论</strong>：基于分析结果形成判断和行动方案</li>
+  <li><strong>验证复盘</strong>：执行后回顾效果，持续优化</li>
+</ol>
+
+<h2>五、经典案例</h2>
+<p>某制造企业面临市场份额下滑问题，运用 <strong>${toolName}</strong> 进行系统分析后，发现根本原因并非竞争对手降价，而是自身供应链效率低下导致交货周期过长。企业据此优化了供应链流程，三个月内市场份额回升了8%。</p>
+
+<h2>六、注意事项</h2>
+<ul>
+  <li>确保数据来源可靠，避免基于错误信息做决策</li>
+  <li>工具是辅助手段，最终决策仍需结合实际情况</li>
+  <li>鼓励团队成员充分参与，避免少数人主导</li>
+  <li>定期复盘工具使用效果，持续改进应用方法</li>
+</ul>
+
+`;
+
+  // 模拟延迟
+  setTimeout(() => {
+    showContent(content);
+  }, 1500);
+}
+
+// ---------- 返回按钮 ----------
+$('backBtn').addEventListener('click', () => {
+  if (STATE.currentTool && STATE.toolStartTime) {
+    const duration = (Date.now() - STATE.toolStartTime) / 1000;
+    if (duration > 2) recordLearning(STATE.currentTool, duration);
+  }
+  STATE.currentTool = null;
+  STATE.toolStartTime = null;
+  showPage(toolsPage);
+});
+
+// ---------- 页面关闭/刷新时记录学习数据 ----------
+window.addEventListener('beforeunload', () => {
+  if (STATE.currentTool && STATE.toolStartTime) {
+    const duration = (Date.now() - STATE.toolStartTime) / 1000;
+    if (duration > 2) recordLearning(STATE.currentTool, duration);
+  }
+});
+
+// ---------- 初始化 ----------
+function init() {
+  loadData();
+  if (STATE.studentName) {
+    $('displayName').textContent = STATE.studentName;
+    $('resultDisplayName').textContent = STATE.studentName;
+    showPage(toolsPage);
+    renderTools();
+  }
+}
+init();
+</script>
+</body>
+</html>
